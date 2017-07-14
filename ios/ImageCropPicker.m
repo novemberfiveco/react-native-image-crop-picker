@@ -574,9 +574,15 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
 // Returns a custom rect for the mask.
 - (CGRect)imageCropViewControllerCustomMaskRect:
 (RSKImageCropViewController *)controller {
-    CGSize maskSize = CGSizeMake(
-                                 [[self.options objectForKey:@"width"] intValue],
-                                 [[self.options objectForKey:@"height"] intValue]);
+    CGSize maskSize = CGSizeZero;
+    if (controller.originalImage.size.width > controller.originalImage.size.height) {
+        maskSize = CGSizeMake([[self.options objectForKey:@"width"] intValue],
+                              [[self.options objectForKey:@"height"] intValue]);
+    }
+    else {
+        maskSize = CGSizeMake([[self.options objectForKey:@"widthLandscape"] intValue],
+                              [[self.options objectForKey:@"heightLandscape"] intValue]);
+    }
 
     CGFloat viewWidth = CGRectGetWidth(controller.view.frame);
     CGFloat viewHeight = CGRectGetHeight(controller.view.frame);

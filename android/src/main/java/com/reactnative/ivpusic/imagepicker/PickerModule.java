@@ -86,6 +86,9 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private int width = 200;
     private int height = 200;
 
+    private int heightLandscape = 200;
+    private int widthLandscape = 200;
+
     private Uri mCameraCaptureURI;
     private String mCurrentPhotoPath;
     private ResultCollector resultCollector;
@@ -114,6 +117,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         includeBase64 = options.hasKey("includeBase64") && options.getBoolean("includeBase64");
         width = options.hasKey("width") ? options.getInt("width") : width;
         height = options.hasKey("height") ? options.getInt("height") : height;
+        widthLandscape = options.hasKey("widthLandscape") ? options.getInt("widthLandscape") : widthLandscape;
+        heightLandscape = options.hasKey("heightLandscape") ? options.getInt("heightLandscape") : heightLandscape;
         cropping = options.hasKey("cropping") ? options.getBoolean("cropping") : cropping;
         cropperActiveWidgetColor = options.hasKey("cropperActiveWidgetColor") ? options.getString("cropperActiveWidgetColor") : cropperActiveWidgetColor;
         cropperStatusBarColor = options.hasKey("cropperStatusBarColor") ? options.getString("cropperStatusBarColor") : cropperStatusBarColor;
@@ -291,7 +296,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
                 mCameraCaptureURI = Uri.fromFile(imageFile);
             } else {
                 mCameraCaptureURI = FileProvider.getUriForFile(activity,
-                        activity.getApplicationContext().getPackageName() + ".provider",
+                        activity.getApplicationContext().getPackageName(),
                         imageFile);
             }
 
@@ -577,9 +582,23 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }
         configureCropperColors(options);
 
+        boolean isImagePortrait = true;
+
+        // convert uri to bitmap
+        try {
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(activity.getContentResolver(), uri);
+            isImagePortrait = bitmap.getWidth() < bitmap.getHeight();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        int targetWidth = isImagePortrait ? width : widthLandscape;
+        int targetHeight = isImagePortrait ? height : heightLandscape;
+
         UCrop.of(uri, Uri.fromFile(new File(this.getTmpDir(activity), UUID.randomUUID().toString() + ".jpg")))
-                .withMaxResultSize(width, height)
-                .withAspectRatio(width, height)
+                .withMaxResultSize(targetWidth, targetHeight)
+                .withAspectRatio(targetWidth, targetHeight)
                 .withOptions(options)
                 .start(activity);
     }

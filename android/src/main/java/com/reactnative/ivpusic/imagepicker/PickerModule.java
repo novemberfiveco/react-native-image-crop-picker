@@ -593,8 +593,8 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             e.printStackTrace();
         }
 
-        int targetWidth = isImagePortrait ? width : widthLandscape;
-        int targetHeight = isImagePortrait ? height : heightLandscape;
+        int targetWidth = isImagePortrait ? widthLandscape : width;
+        int targetHeight = isImagePortrait ? heightLandscape : height;
 
         UCrop.of(uri, Uri.fromFile(new File(this.getTmpDir(activity), UUID.randomUUID().toString() + ".jpg")))
                 .withMaxResultSize(targetWidth, targetHeight)
